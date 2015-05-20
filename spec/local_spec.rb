@@ -278,14 +278,17 @@ describe Rush::Connection::Local do
   end
 
   it "gets the list of processes on os x via the ps command" do
-    expect(@con).to receive(:os_x_raw_ps).and_return <<EOPS
+    expect(@con).to receive(:os_x_raw_ps).and_return(<<EOPS.force_encoding('UTF-8'))
 PID UID   PPID  RSS  CPU COMMAND
 1     0      1 1111   0 cmd1 args
 2   501      1  222   1 cmd2
+3   501      1  333   1 /\xE7M^Y\xBE度\xE4\xBAM^Q\xE5M^PM^L步\xE7M^[M^X.cmd3
 EOPS
+    crazy_cmdline = "/\xE7M^Y\xBE度\xE4\xBAM^Q\xE5M^PM^L步\xE7M^[M^X.cmd3".force_encoding('iso-8859-1')
     expect(@con.os_x_processes).to eq [
       { :pid => "1", :uid => "0", :parent_pid => 1, :mem => 1111, :cpu => 0, :command => "cmd1", :cmdline => "cmd1 args" },
       { :pid => "2", :uid => "501", :parent_pid => 1, :mem => 222, :cpu => 1, :command => "cmd2", :cmdline => "cmd2" },
+      { :pid => "3", :uid => "501", :parent_pid => 1, :mem => 333, :cpu => 1, :command => crazy_cmdline, :cmdline => crazy_cmdline },
     ]
   end
 

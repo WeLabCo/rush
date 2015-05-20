@@ -216,7 +216,7 @@ class Rush::Connection::Local
 
   # Process list on OS X or other unixes without a /proc.
   def os_x_processes
-    raw = os_x_raw_ps.split("\n").slice(1, 99999)
+    raw = os_x_raw_ps.force_encoding('iso-8859-1').split("\n").slice(1, 99999)
     raw.map do |line|
       parse_ps(line)
     end
